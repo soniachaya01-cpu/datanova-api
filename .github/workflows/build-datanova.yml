@@ -39,8 +39,8 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
-          context: .           # VERY IMPORTANT: يبني من جذر المشروع
-          push: true           # ادفع الصورة إلى Docker Hub
+          context: .
+          push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/datanova-api:latest
-            ${{ secrets.DOCKER_USERNAME }}/datanova-api:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/datanova_api:latest
+            ${{ secrets.DOCKER_USERNAME }}/datanova_api:${{ github.sha }}
