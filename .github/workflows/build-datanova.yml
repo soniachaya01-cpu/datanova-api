@@ -16,10 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11 (for tests only)
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install deps & run tests
         run: |
@@ -27,10 +27,19 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -d tests ]; then python -m pytest -q || exit 1; fi
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build and Push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/datanova-api:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/datanova-api:latest
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .     # ← هذا السطر هو الذي كان ناقصًا
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/datanova-api:latest
+            ${{ secrets.DOCKER_USERNAME }}/datanova-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
